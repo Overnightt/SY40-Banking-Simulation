@@ -34,10 +34,10 @@ int init_ipc(key_t key,int create){
 }
 
 
-int send_request(Request* req)
+int send_request(Request* req);
 
-int receive_request(Request* req)
+int receive_request(Request* req);
 
-int send_response(Response* rep)
+int send_response(Response* rep);
 
-int receive_response(Response* rep)
+int receive_response(Response* rep);

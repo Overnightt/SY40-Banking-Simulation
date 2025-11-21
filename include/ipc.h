@@ -8,7 +8,7 @@ typedef struct {
 	int target_id; //account id only used for transfer
 	int dest_id; //account id only used for transfer
 	int amount;  //Used for deposit withdraw and transfer
-	char name[50] //used to create new account
+	char name[50]; //used to create new account
 	long mtype; 
 }Request;
 
@@ -23,7 +23,7 @@ typedef struct {
 	int status;         //0 if sucess, -1 if failure
 	char message[100]; //text info if the request failed or suceded
 	long mtype;       //mtype specific to the client
-}response;
+}Response;
 
 int init_ipc(key_t key,int create);
 int send_request(Request* req);
