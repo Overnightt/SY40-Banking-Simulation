@@ -1,6 +1,6 @@
 /* Implements the bank process */
 #include "bank.h"      
-//#include "ipc.h"       
+#include "ipc.h"       
 //#include "utils.h"    
 #include <stdio.h>     
 #include <stdlib.h>    
