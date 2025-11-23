@@ -8,6 +8,6 @@
 #include "bank.h"
 #include "client.h"
 
-int main() {
+int main(){
 
-    }
+}

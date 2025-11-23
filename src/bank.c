@@ -9,6 +9,9 @@
 #include <pthread.h>   
 #include <semaphore.h> 
 
+//I create a global mutex that i will use to make sure evvry operation is atomic
+pthread_mutex_t bank_mutex;
+
 //I define the head of the linked list
 AccountList* head = NULL;
 
@@ -17,42 +20,58 @@ int next_id = 0;
 
 //Deposit X amount of money inside an account
 int deposit(int account_id,int X){
+	pthread_mutex_lock(&bank_mutex);
 	Account* acc = find_account(account_id);
         if (acc==NULL){
+		pthread_mutex_unlock(&bank_mutex);
                 return -1;
         }
 	else {
 		acc->balance+=X;
+		pthread_mutex_unlock(&bank_mutex);
+		return 0;
 	}
-	return 0;
 }
 
 //Checks if the amount withdrawn dosen't exceed the balance and then withdraw the money
 int withdraw(int account_id,int X){
+	pthread_mutex_lock(&bank_mutex);
  	Account* acc = find_account(account_id);
         if (acc==NULL){
+		pthread_mutex_unlock(&bank_mutex);
                 return -1;
         }
 	if (acc->balance<X){
 		printf("Amount exceeds the current account balance");
+		pthread_mutex_unlock(&bank_mutex);
 		return -1;
 	}
 	else {
 		acc->balance-=X;
+		pthread_mutex_unlock(&bank_mutex);
+		return 0;
 	}
-	return 0;
 }
 
-//Uses the deposit and withdraw to make a transfer
+//I didn't reuse deposit and withdraw to make a transfer because of the mutex
 int transfer(int source_id,int dest_id,int X){
-	int res=withdraw(source_id,X);
-	if (res!=0){
+	pthread_mutex_lock(&bank_mutex);
+    	Account* src = find_account(source_id);
+    	Account* dst = find_account(dest_id);
+	if (src==NULL || dst==NULL){
+		pthread_mutex_unlock(&bank_mutex);
 		return -1;
 	}
+        if (src->balance<X){
+               pthread_mutex_unlock(&bank_mutex);
+               return -1;
+        }
 	else {
-		deposit(dest_id,X);
+		src->balance -=X;
+		dst->balance +=X;
+		pthread_mutex_unlock(&bank_mutex);
+		return 0;
 	}
-	return 0;
 }
 
 //Returns the balance of the account
