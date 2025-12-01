@@ -1,4 +1,5 @@
 #include "account_utils.h"
+#include "client.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -14,22 +15,25 @@ Client* find_client_by_name(const char* name) {
 }
 
 void show_client_accounts(int client_id) {
-    printf("\nYour Accounts:\n");
-    AccountList* current = head;
-    int found = 0;
-    while (current != NULL) {
-        if (current->account.owner_id == client_id) {
-            printf("Account Name: %s | Account ID: %d | Balance: %d\n",
-                   current->account.account_name,
-                   current->account.account_id,
-                   current->account.balance);
-            found = 1;
+    Client* client = find_client(client_id);
+    if (client == NULL) {
+        printf("Client not found.\n");
+        return;
+    }
+    
+    printf("\n--- Your Accounts ---\n");
+    if (client->num_accounts == 0) {
+        printf("No accounts yet.\n");
+    } else {
+        for (int i = 0; i < client->num_accounts; i++) {
+            int acc_id = client->account_ids[i];
+            int balance = client_get_balance(client_id, acc_id);
+            if (balance >= 0) {
+                printf("  Account #%d: Balance = %d\n", acc_id, balance);
+            }
         }
-        current = current->next;
     }
-    if (!found) {
-        printf("No accounts found.\n");
-    }
+    printf("---------------------\n");
 }
 
 void show_account_details(Client* client, Account* account) {

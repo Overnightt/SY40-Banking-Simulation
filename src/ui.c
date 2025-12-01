@@ -1,8 +1,8 @@
 #include "ui.h"
+#include "client.h"
 #include "account_utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #define MAX_NAME 50
 
@@ -18,33 +18,43 @@ void user_menu(Client* client) {
 
         if (acc_id == -1) {
             printf("Logging out...\n");
-            break; // back to main menu
+            break;
         } 
         else if (acc_id == -2) {
-            // create a new account
             char acc_name[MAX_NAME];
             printf("Enter a name for your new account: ");
             scanf(" %49[^\n]", acc_name);
-            add_account(client->client_id, acc_name);
-            printf("Account '%s' created successfully!\n", acc_name);
-            continue; // show account list again
+            
+            int new_acc_id = client_create_account(client->client_id, acc_name);
+            if (new_acc_id >= 0) {
+                printf("Account '%s' created successfully with ID %d!\n", acc_name, new_acc_id);
+            }
+            continue;
         }
 
-        Account* selected_acc = find_account(acc_id);
-        if (!selected_acc || selected_acc->owner_id != client->client_id) {
+        // Vérifier que le compte appartient au client
+        int found = 0;
+        for (int i = 0; i < client->num_accounts; i++) {
+            if (client->account_ids[i] == acc_id) {
+                found = 1;
+                break;
+            }
+        }
+        
+        if (!found) {
             printf("Invalid account ID. Try again.\n");
             continue;
         }
 
         int choice;
-        while (1) { // account-specific operations
-            show_account_details(client, selected_acc);
-            printf("\n--- Account Menu ---\n");
+        while (1) {
+            printf("\n--- Account #%d Menu ---\n", acc_id);
             printf("1. Deposit\n");
             printf("2. Withdraw\n");
             printf("3. Transfer\n");
-            printf("4. Switch account\n");
-            printf("5. Logout\n");
+            printf("4. Check Balance\n");
+            printf("5. Switch account\n");
+            printf("6. Logout\n");
             printf("Choose an option: ");
             scanf("%d", &choice);
 
@@ -52,41 +62,50 @@ void user_menu(Client* client) {
                 int amount;
                 printf("Enter deposit amount: ");
                 scanf("%d", &amount);
-                if (deposit(acc_id, amount) == 0)
+                
+                if (client_deposit(client->client_id, acc_id, amount) >= 0) {
                     printf("Deposit successful.\n");
-                else
+                } else {
                     printf("Deposit failed.\n");
+                }
             } 
             else if (choice == 2) {
                 int amount;
                 printf("Enter withdrawal amount: ");
                 scanf("%d", &amount);
-                if (withdraw(acc_id, amount) == 0)
+                
+                if (client_withdraw(client->client_id, acc_id, amount) >= 0) {
                     printf("Withdrawal successful.\n");
-                else
+                } else {
                     printf("Failed to withdraw.\n");
+                }
             } 
             else if (choice == 3) {
                 int dest_id, amount;
                 printf("Enter destination account ID: ");
                 scanf("%d", &dest_id);
-                Account* dest_acc = find_account(dest_id);
-                if (!dest_acc) {
-                    printf("Destination account not found.\n");
-                    continue;
-                }
                 printf("Enter amount to transfer: ");
                 scanf("%d", &amount);
-                if (transfer(acc_id, dest_id, amount) == 0)
+                
+                if (client_transfer(client->client_id, acc_id, dest_id, amount) == 0) {
                     printf("Transfer successful.\n");
-                else
+                } else {
                     printf("Transfer failed.\n");
-            } 
-            else if (choice == 4) { 
-                break; // switch account
-            } 
+                }
+            }
+            else if (choice == 4) {
+                int balance = client_get_balance(client->client_id, acc_id);
+                if (balance >= 0) {
+                    printf("Current balance: %d\n", balance);
+                } else {
+                    printf("Failed to get balance.\n");
+                }
+            }
             else if (choice == 5) { 
-                return; // logout
+                break;
+            } 
+            else if (choice == 6) { 
+                return;
             } 
             else {
                 printf("Invalid choice.\n");
