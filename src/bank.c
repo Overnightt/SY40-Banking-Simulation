@@ -42,7 +42,7 @@ int withdraw(int account_id,int X){
                 return -1;
         }
 	if (acc->balance<X){
-		printf("Amount exceeds the current account balance");
+		printf("Amount exceeds the current account balance \n");
 		pthread_mutex_unlock(&bank_mutex);
 		return -1;
 	}
@@ -90,7 +90,7 @@ int add_account(int client_id,const char *name){
 	AccountList* new_account=(AccountList*) malloc(sizeof(AccountList));
 	if (new_account == NULL){
 		perror("Failled to malloc for new account");
-		exit;
+		return -1;
 	}
 	new_account->account.account_id = next_id;
 	next_id= next_id+1;
@@ -99,7 +99,7 @@ int add_account(int client_id,const char *name){
 	strncpy(new_account->account.account_name,name,50);
 	new_account->next=head;
 	head= new_account;
-	return 0;
+	return new_account->account.account_id;
 }
 
 //A function that returns a pointer to the account with the target id

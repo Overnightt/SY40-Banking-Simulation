@@ -1,8 +1,8 @@
 /* Implement Client Process */
 
 #include "client.h"
-//#include "ipc.h"
-//#include "utils.h"
+#include "ipc.h"
+#include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
