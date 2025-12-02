@@ -24,24 +24,48 @@ void bank_process(){
 			rep.status=0;           //we assume sucess
 			strcpy(rep.message, "Request done \n");
 			if (req.type==0){
+				if (is_owner(req.source_id, req.target_id)==0) {
+        				rep.status = -1;
+        				strcpy(rep.message, "Unauthorized: You do not own this account");
+					send_response(&rep);
+					continue;
+    				}
 				if(deposit(req.target_id,req.amount)==-1){
 					rep.status=-1;
 					strcpy(rep.message, "Deposit failed");
 				}
 			}
 			if (req.type==1){
+				if (is_owner(req.source_id, req.target_id)==0) {
+                                        rep.status = -1;
+                                        strcpy(rep.message, "Unauthorized: You do not own this account");
+					send_response(&rep);
+					continue;
+                                }
                                 if (withdraw(req.target_id,req.amount)==-1){
 					rep.status=-1;
                                         strcpy(rep.message, "Withdraw failed");
 				}
                         }
                         if (req.type==2){
+				if (is_owner(req.source_id, req.target_id)==0) {
+                                        rep.status = -1;
+                                        strcpy(rep.message, "Unauthorized: You do not own this account");
+					send_response(&rep);
+					continue;
+                                }
                                 if (transfer(req.target_id,req.dest_id,req.amount)==-1){
 					rep.status=-1;
                                         strcpy(rep.message, "Transfer failed");
 				}
                         }
                         if (req.type==3){
+				if (is_owner(req.source_id, req.target_id)==0) {
+                                        rep.status = -1;
+                                        strcpy(rep.message, "Unauthorized: You do not own this account");
+					send_response(&rep);
+					continue;
+                                }
 				int balance=get_balance(req.target_id);
                                 if(balance==-1){
 					rep.status=-1;

@@ -27,6 +27,7 @@ int transfer(int source_id,int dest_id,int X);
 int add_account(int owner_id,const char *name);
 Account* find_account(int target_id);
 int get_balance(int account_id);
+int is_owner(int client_id, int account_id);
 
 #endif
 

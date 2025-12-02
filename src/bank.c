@@ -115,3 +115,11 @@ Account* find_account(int target_id){
 	}
 	return NULL;
 }
+
+int is_owner(int client_id, int account_id) {
+	Account* acc = find_account(account_id);
+    	if (!acc){ 
+		return 0;
+	}
+    	return acc->owner_id == client_id;
+}
