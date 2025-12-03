@@ -33,7 +33,7 @@ typedef struct {
 	long mtype;       //mtype specific to the client
 	int status;         //0 if sucess, -1 if failure
 	int target_id;      //id of the client that is recieving the response
-	char message[100]; //text info if the request failed or suceded
+	char message[512]; //text info if the request failed or suceded
 }Response;
 
 int init_ipc(key_t key,int create);

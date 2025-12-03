@@ -12,8 +12,9 @@
 int main(){
     char choice;
     while (1) { // top-level loop
-        printf("\nWelcome to SY40 Banking Simulation!\n");
-        printf("Do you want to create the  (B)ank process,Or act as a (C)lient process ");
+        printf("\n=== Welcome to SY40 Banking Simulation! ===\n");
+        printf("Do you want to create the (B)ank process \n");
+        printf("or act as a (C)lient process : ");
         scanf(" %c", &choice);
 	if (choice == 'B' || choice == 'b') {
 		bank_process();

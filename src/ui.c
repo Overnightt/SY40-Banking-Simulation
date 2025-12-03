@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
-#include <sys/ipc.h>
+#include <sys/ipc.h>    
 #include <sys/msg.h>
 #include "ipc.h"
 #include "client.h"
@@ -13,7 +13,7 @@
 
 //handles the bank process
 void bank_process(){
-	printf("Welcome i'm the bank process i'll be running and processing request \n");
+	printf("\n=== Welcome to the bank process ===\n");
 	key_t key = ftok("bank", 1);
     init_ipc(key, 1);
 	Request req;
@@ -32,7 +32,7 @@ void bank_process(){
     				}
 				if(deposit(req.target_id,req.amount)==-1){
 					rep.status=-1;
-					strcpy(rep.message, "Deposit failed");
+					strcpy(rep.message, "Deposit failed");   
 				}
 			}
 			if (req.type==1){
@@ -87,9 +87,12 @@ void bank_process(){
 					char buf[50];
                     sprintf(buf,"Account id: %d \n",add);
                     strcpy(rep.message,buf);	
-				}
-                send_response(&rep);
+				}               
 			}
+            if (req.type==5){
+                get_client_accounts(req.source_id, rep.message, sizeof(rep.message));
+            }
+		send_response(&rep);
 		}
 	}
 }
@@ -125,6 +128,14 @@ void client_process(){
 		}
 	while (1) {
 		printf("\n\n=== Welcome %s (ID: %d) ===\n", cli->client_name, cli->client_id);
+        
+        // Request and display account list
+        req.type = 5;
+        req.source_id = cli->client_id;
+        send_request(&req);
+        receive_response(&rep, cli->client_id);
+        printf("Your Accounts:\n%s\n", rep.message);
+
 		printf("\nWhat do you want to do ? ");
 		printf("\n(D)eposit"); 
 		printf("\n(W)ithdraw"); 
