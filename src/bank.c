@@ -87,9 +87,11 @@ int get_balance(int account_id){
 
 //The clients create a new account with this function 
 int add_account(int client_id,const char *name){
+	pthread_mutex_lock(&bank_mutex);
 	AccountList* new_account=(AccountList*) malloc(sizeof(AccountList));
 	if (new_account == NULL){
 		perror("Failled to malloc for new account");
+		pthread_mutex_unlock(&bank_mutex);
 		return -1;
 	}
 	new_account->account.account_id = next_id;
@@ -99,6 +101,7 @@ int add_account(int client_id,const char *name){
 	strncpy(new_account->account.account_name,name,50);
 	new_account->next=head;
 	head= new_account;
+	pthread_mutex_unlock(&bank_mutex);
 	return new_account->account.account_id;
 }
 
@@ -122,4 +125,38 @@ int is_owner(int client_id, int account_id) {
 		return 0;
 	}
     	return acc->owner_id == client_id;
+}
+
+// Populates buffer with a list of accounts owned by client_id
+void get_client_accounts(int client_id, char* buffer, size_t buffer_size) {
+    pthread_mutex_lock(&bank_mutex);
+    AccountList* current = head;
+    buffer[0] = '\0'; // Initialize empty string
+    char temp[100];
+    bool found = false;
+
+    while (current != NULL) {
+        if (current->account.owner_id == client_id) {
+            snprintf(temp, sizeof(temp), "- %s (ID: %d) Balance: %d\n", 
+                     current->account.account_name, 
+                     current->account.account_id,
+					 current->account.balance);
+            
+            // Check if we have space to append
+            if (strlen(buffer) + strlen(temp) < buffer_size) {
+                strcat(buffer, temp);
+                found = true;
+            } else {
+                // Buffer full
+                break;
+            }
+        }
+        current = current->next;
+    }
+    
+    if (!found) {
+        snprintf(buffer, buffer_size, "No accounts found.\n");
+    }
+    
+    pthread_mutex_unlock(&bank_mutex);
 }

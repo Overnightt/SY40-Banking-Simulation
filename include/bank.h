@@ -1,6 +1,8 @@
 #ifndef BANK_H
 #define BANK_H
 
+#include <stddef.h>
+
 //The structure of an account
 typedef struct {
         int account_id;
@@ -28,6 +30,7 @@ int add_account(int owner_id,const char *name);
 Account* find_account(int target_id);
 int get_balance(int account_id);
 int is_owner(int client_id, int account_id);
+void get_client_accounts(int client_id, char* buffer, size_t buffer_size);
 
 #endif
 

@@ -7,8 +7,7 @@ typedef struct {
         char client_name[50];
 } Client;
 
-//A global counter for the client id
-extern int next_client_id;
+
 
 //I chose to make another linked list to navigate between the clients
 typedef struct ClientList {
@@ -20,6 +19,6 @@ typedef struct ClientList {
 extern ClientList* client_head;
 
 int add_client(const char* name);
-Client* find_client(int client_it);
+Client* find_client(int client_id);
 #endif
 
