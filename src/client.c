@@ -85,17 +85,48 @@ int add_client(const char* name){
 
 
 //A function that returns a pointer to the client with the target id
-Client* find_client(int client_id){
-        ClientList* current=client_head;
-        while (current !=NULL){
-                if (current->client.client_id == client_id){
-                        return &current->client;
-                }
-                else{
-                        current=current->next;
-                }
-        }
+Client* find_client(int client_id) {
+    sem_t *mutex = sem_open("/client_file_mutex", 0);
+    if (mutex == SEM_FAILED) {
+        perror("Failed to open semaphore");
         return NULL;
-}
+    }
+    if (sem_wait(mutex) == -1) {
+        perror("Failed to lock semaphore");
+        sem_close(mutex);
+        return NULL;
+    }
+    FILE *file = fopen("account.txt", "r");
+    if (!file) {
+        perror("Failed to open account.txt");
+        sem_post(mutex);
+        sem_close(mutex);
+        return NULL;
+    }
+    char line[256];
+    int temp_id;
+    char temp_name[50];
+    Client *found = NULL;
+    while (fgets(line, sizeof(line), file)) {
+        if (sscanf(line, "%d %s", &temp_id, temp_name) == 2) {
+            if (temp_id == client_id) {
+                found = malloc(sizeof(Client));
+                if (!found) {
+                    perror("malloc failed in find_client");
+                    break;
+                }
+                found->client_id = temp_id;
+                strncpy(found->client_name, temp_name, 50);
+                break;
+            }
+        }
+    }
 
+    fclose(file);
+    if (sem_post(mutex) == -1) {
+        perror("Failed to unlock semaphore");
+    }
+    sem_close(mutex);
+    return found;   
+}
 
